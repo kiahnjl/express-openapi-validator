@@ -14,11 +14,25 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - $ref: '#/components/schemas/CatObject'
-                - $ref: '#/components/schemas/DogObject'
-              discriminator:
-                propertyName: pet_type
+              type: object
+              properties:
+                # defaults for 'dog' are populated correctly
+                dog:
+                  $ref: '#/components/schemas/DogObject'
+                # defaults for 'pet' are not populated
+                # using a `discriminator` yields the same result
+                pet:
+                  oneOf:
+                    - $ref: '#/components/schemas/CatObject'
+                    - $ref: '#/components/schemas/DogObject'
+                # defaults for 'pets' are not populated
+                # using a `discriminator` yields the same result
+                pets:
+                  type: array
+                  items:
+                    oneOf:
+                      - $ref: '#/components/schemas/CatObject'
+                      - $ref: '#/components/schemas/DogObject'
       responses:
         '200':
           description: Updated
@@ -51,14 +65,14 @@ components:
     DogObject:
       type: object
       required:
-        - bark
-        - breed
         - pet_type
       properties:
         bark:
           type: boolean
+          default: false
         breed:
           type: string
+          default: Dingo
           enum: [Dingo, Husky, Retriever, Shepherd]
         pet_type:
           type: string
@@ -70,14 +84,14 @@ components:
     CatObject:
       type: object
       required:
-        - hunts
-        - age
         - pet_type
       properties:
         hunts:
           type: boolean
+          default: false
         age:
           type: integer
+          default: 8
         pet_type:
           type: string
           # since we use an enum here
